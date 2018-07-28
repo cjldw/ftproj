@@ -27,6 +27,11 @@ def move_file():
         print("文件%s是否是目录: %s", file, a)
         # shutil.move(file, "d:/test.py")
 
+def read_file():
+    fd = open("./test.py", "rb+")
+    c = b''.join(fd.readlines())
+    fd.close()
+    print(c)
 
 def sftp_download():
     FtpUtils.download_sftp()
@@ -38,4 +43,7 @@ def ftp_download():
 
 if __name__ == "__main__":
     # ftp_download()
-    sftp_download()
+    # sftp_download()
+    read_file()
+
+
