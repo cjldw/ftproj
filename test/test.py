@@ -62,11 +62,12 @@ def demo():
     print(c)
 
 if __name__ == "__main__":
+    ftp_download()
     # ftp_download()
     # sftp_download()
     # read_file()
     # write_file()
-    dump_from_db()
+    # dump_from_db()
     # deencode()
     # demo()
 

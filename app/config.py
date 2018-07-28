@@ -23,9 +23,9 @@ ftpConf = {
     "dbpwd": "111111",
     "dbport": 3306,
     "dbcharset": "utf8",
-    "ftphost": "www.xingshixian.com",
-    "ftptype": "sftp",
-    "ftpuser": "zdftp",
-    "ftppwd": "Zd@ftpsvr123;",
+    "ftphost": "ftp1.linuxidc.com",
+    "ftptype": "ftp",
+    "ftpuser": "ftp1.linuxidc.com",
+    "ftppwd": "www.linuxidc.com",
     "ftpport": "22",
 }

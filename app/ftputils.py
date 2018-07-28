@@ -4,7 +4,7 @@
 # time: 2018/7/26 23:13
 # desc:
 
-#import pysftp
+import pysftp
 from .config import ftpConf
 from ftplib import FTP
 
