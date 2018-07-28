@@ -15,10 +15,12 @@ class DbUtils(object):
         create table if not exists files (
             id int unsigned not null auto_increment,
             filename varchar(255) not null default '' comment '文件名称',
+            is_dump tinyint(3) not null default '0' comment '是否到处到文件',
             content blob not null comment '文件内容',
             created_at int unsigned not null default '0' comment '创建时间',
             primary key (id),
-            index index_created_at (created_at)
+            index index_created_at (created_at),
+            index index_is_dump(is_dump)
         ) engine innodb charset utf8 comment '文件信息';
 
 
@@ -36,30 +38,37 @@ class DbUtils(object):
         }
         return pymysql.connect(**kwargs)
 
-    def record_files(self, files=[]):
-        if len(files) == 0:
+    def record_files(self, filename="", content=""):
+        if filename == "":
             logging.info("计入文件数量为空!")
             return True
         conn = self.get_conn()
         try:
             unixtime = int(time.time())
-            for file in files:
-                if not path.isabs(file):
-                    absfile = path.abspath(file)
-                if not path.isfile(absfile):
-                    logging.error("文件:%s 不存在!", absfile)
-                    continue
-                fd = open(absfile, 'rb+')
-                content = b"".join(fd.readlines())
-                fd.close()
-                with conn.cursor() as cursor:
-                    record_sql = "INSERT INTO files (filename, content, created_at) VALUES {}".format(file, content,
-                                                                                                      unixtime)
-                    logging.info("execute record file SQL: ", record_sql)
-                    cursor.execute(record_sql)
-                    conn.commit()
+            with conn.cursor() as cursor:
+                record_sql = 'INSERT INTO files (filename, content, created_at) VALUES ("{}","{}","{}")'
+                record_sql = record_sql.format(filename, content, unixtime)
+                print(record_sql)
+                logging.info("execute record file SQL: ", record_sql)
+                cursor.execute(record_sql)
+                conn.commit()
+
+
         except Exception as e:
-            logging.error("record file error", e)
+            logging.error("record file error: %s", e)
+        finally:
+            conn.close()
+
+    def delete_file(self, fd_list):
+        conn = self.get_conn()
+        try:
+            with conn.cursor() as cursor:
+                delete_sql = 'DELETE FROM files WHERE id in ({})'.format(fd_list)
+                logging.info("删除文件: %s", delete_sql)
+                conn.execute(delete_sql)
+                conn.commit()
+        except Exception as e:
+            logging.error("删除数据记录发生错误: ", e)
         finally:
             conn.close()
 
@@ -81,7 +90,7 @@ class DbUtils(object):
         conn = self.get_conn()
         try:
             with conn.cursor() as cursor:
-                file_sql = "SELECT * FROM files WHERE is_move = 0"
+                file_sql = "SELECT * FROM files WHERE is_dump = 0"
                 cursor.execute(file_sql)
                 result = cursor.fetchall()
                 return result
