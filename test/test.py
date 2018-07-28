@@ -5,13 +5,12 @@
 # @time: 2018/7/27 14:06
 # @desc:
 
-import time, os, shutil,base64
+import time, os, shutil,base64, logging
 
 from os import path
 from app.dbutils import DbUtils
 from app.cronjob import CronJob
 from app.ftputils import FtpUtils
-
 
 def maplab():
     list1 = [1, 2, 3, 4]
@@ -67,8 +66,15 @@ if __name__ == "__main__":
     # sftp_download()
     # read_file()
     # write_file()
-    # dump_from_db()
+    dump_from_db()
     # deencode()
-    demo()
+    # demo()
 
+    # print("utfmb4".encode("iso-8859-1"))
+
+    # file = "./tmp/dl/a.ttf"
+    # c = open(file, 'rb+')
+    # lines = c.readlines()
+    # c.close()
+    # print(b''.join(lines))
 

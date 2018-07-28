@@ -7,6 +7,5 @@
 from app.ftproj import Ftproj
 
 if __name__ == "__main__":
-
     ftproj = Ftproj()
     ftproj.run()

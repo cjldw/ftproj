@@ -8,6 +8,8 @@ import os, logging, sys, time, schedule
 from logging.handlers import TimedRotatingFileHandler
 from .config import ftpConf
 from .cronjob import CronJob
+from pathlib import Path
+from os import path
 
 
 class Ftproj(object):
@@ -16,20 +18,53 @@ class Ftproj(object):
         self.init_dir()
 
     def init_dir(self):
+        """
+        make runtime directories
+        :return:
+        """
+        # initial log_dir
         logpath = ftpConf.get("logpath", "./logs")
-        if not os.path.isdir(logpath):
-            os.mkdir(logpath, 777)
+        if not path.isabs(logpath):
+            logpath = path.abspath(logpath)
+        if not path.isdir(logpath):
+            Path(logpath).mkdir(parents=True, exist_ok=True)
+
+        # initial download_dir
+        download_dir = ftpConf.get("download_dir")
+        if not path.isabs(download_dir):
+            download_dir = path.abspath(download_dir)
+        if not path.isdir(download_dir):
+            Path(download_dir).mkdir(parents=True, exist_ok=True)
+
+        # initial dist_dir
+        dist_dir = ftpConf.get("dist_dir")
+        if not path.isabs(dist_dir):
+            dist_dir = path.abspath(dist_dir)
+        if not path.isdir(dist_dir):
+            Path(dist_dir).mkdir(parents=True, exist_ok=True)
+
+        # initial ftp_dir
+        ftp_dir = ftpConf.get("ftp_dir")
+        if not path.isabs(ftp_dir):
+            ftp_dir = path.abspath(ftp_dir)
+        if not path.isdir(ftp_dir):
+            Path(ftp_dir).mkdir(parents=True, exist_ok=True)
+
 
     def init_log(self):
-        rootLogger = logging.getLogger(None)
-        rootLogger.setLevel(logging.INFO)
+        """
+        initial logger format
+        :return:
+        """
+        root_logger = logging.getLogger(None)
+        root_logger.setLevel(logging.INFO)
 
         formatter = logging.Formatter('%(asctime)s %(filename)s[%(lineno)d] %(levelname)s: %(message)s')
 
         console = logging.StreamHandler(sys.stdout)
         console.setLevel(logging.INFO)
         console.setFormatter(formatter)
-        rootLogger.addHandler(console)
+        root_logger.addHandler(console)
 
         logpath = ftpConf.get("logpath", "./logs")
         logfile = ftpConf.get("logfile", "app.log")
@@ -37,19 +72,20 @@ class Ftproj(object):
         rhandler = TimedRotatingFileHandler(abslogfile, when='D', backupCount=30)
         rhandler.setLevel(logging.INFO)
         rhandler.setFormatter(formatter)
-        rootLogger.addHandler(rhandler)
+        root_logger.addHandler(rhandler)
         logging.info("init log success.")
 
-    def ftp_job(self):
-        print("download from ftp")
-        pass
+    def import_to_db(self):
+        CronJob.import_to_db()
 
-    def local_job(self):
-        CronJob.local_job()
+    def dump_from_db(self):
+        CronJob.dump_from_db()
 
     def run(self):
-        schedule.every(2).minutes.do(self.ftp_job)
-        schedule.every(2).seconds.do(self.local_job)
+        import_db_time = int(ftpConf.get("import_db_time", 10))
+        dump_db_time = int(ftpConf.get("dump_db_time", 5))
+        schedule.every(import_db_time).seconds.do(self.import_to_db)
+        schedule.every(dump_db_time).seconds.do(self.dump_from_db)
         while True:
             schedule.run_pending()
             time.sleep(1)

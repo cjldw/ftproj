@@ -5,7 +5,6 @@
 # desc:
 
 import pymysql, logging, time, shutil
-from os import path
 from .config import ftpConf
 
 
@@ -32,28 +31,25 @@ class DbUtils(object):
             "user": ftpConf.get("dbuser", "root"),
             "password": ftpConf.get("dbpwd", "111111"),
             "db": ftpConf.get("dbname", "test"),
-            "charset": ftpConf.get("dbcharset", 'utf8'),
+            "charset": ftpConf.get("dbcharset", 'utf8_bin'),
             "port": ftpConf.get("dbport", 3306),
+            "binary_prefix": True,
             "cursorclass": pymysql.cursors.DictCursor,
         }
         return pymysql.connect(**kwargs)
 
     def record_files(self, filename="", content=""):
         if filename == "":
-            logging.info("计入文件数量为空!")
+            logging.info("计入文件名为空!")
             return True
         conn = self.get_conn()
         try:
             unixtime = int(time.time())
             with conn.cursor() as cursor:
-                record_sql = 'INSERT INTO files (filename, content, created_at) VALUES ("{}","{}","{}")'
-                record_sql = record_sql.format(filename, content, unixtime)
-                print(record_sql)
-                logging.info("execute record file SQL: ", record_sql)
-                cursor.execute(record_sql)
+                record_sql = 'INSERT INTO files (filename, content, created_at) VALUES (%s,%s,%s)'
+                logging.info("execute record filename: %s time: %s, content: %s", filename, unixtime, content)
+                cursor.execute(record_sql, (filename, content, unixtime))
                 conn.commit()
-
-
         except Exception as e:
             logging.error("record file error: %s", e)
         finally:
@@ -72,17 +68,30 @@ class DbUtils(object):
         finally:
             conn.close()
 
+    def mark_file(self, id):
+        conn = self.get_conn()
+        try:
+            with conn.cursor() as cursor:
+                update_sql = 'UPDATE files SET is_dump = 1 WHERE id = %s'
+                logging.info("标记文件迁移: %s", update_sql)
+                cursor.execute(update_sql, (id,))
+            conn.commit()
+        except Exception as e:
+            logging.error("删除数据记录发生错误: %s", e)
+        finally:
+            conn.close()
+
     def flush_files(self):
         conn = self.get_conn()
         try:
             with conn.cursor() as cursor:
                 flush_sql = "UPDATE files SET is_move = 1"
-                logging.info("execute flush sql:", flush_sql)
+                logging.info("execute flush sql: %s", flush_sql)
                 cursor.execute(flush_sql)
-                conn.commit()
+            conn.commit()
 
         except Exception as e:
-            logging.error("update files sql error: ", e)
+            logging.error("update files sql error: %s", e)
         finally:
             conn.close()
 
@@ -95,7 +104,7 @@ class DbUtils(object):
                 result = cursor.fetchall()
                 return result
         except Exception as e:
-            logging.error("fetch all files error:", e)
+            logging.error("fetch all files error: %s", e)
 
         finally:
             conn.close()
