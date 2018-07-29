@@ -47,6 +47,7 @@ case "$1" in
     restart)
         stop
         start
+        ;;
     *)
     echo $"Usage: $0 {start | stop | status}"
     exit 1
