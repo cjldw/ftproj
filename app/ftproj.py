@@ -8,6 +8,7 @@ import os, logging, sys, time, schedule
 from logging.handlers import TimedRotatingFileHandler
 from .config import ftpConf
 from .cronjob import CronJob
+from .ftputils import FtpUtils
 from pathlib import Path
 from os import path
 
@@ -19,7 +20,7 @@ class Ftproj(object):
 
     def init_dir(self):
         """
-        make runtime directories
+        初始化运行时所需要的目录
         :return:
         """
         # initial log_dir
@@ -50,10 +51,9 @@ class Ftproj(object):
         if not path.isdir(ftp_dir):
             Path(ftp_dir).mkdir(parents=True, exist_ok=True)
 
-
     def init_log(self):
         """
-        initial logger format
+        初始化日志文件
         :return:
         """
         root_logger = logging.getLogger(None)
@@ -76,16 +76,37 @@ class Ftproj(object):
         logging.info("init log success.")
 
     def import_to_db(self):
+        """
+        定时将文件写入到数据库中
+        :return:
+        """
         CronJob.import_to_db()
 
     def dump_from_db(self):
+        """
+        定时从数据库导出数据文件
+        :return:
+        """
         CronJob.dump_from_db()
 
+    def download_ftp(self):
+        """
+        定时下载ftp文件
+        :return:
+        """
+        FtpUtils.download_ftp()
+
     def run(self):
+        """
+        程序运行入口
+        :return:
+        """
         import_db_time = int(ftpConf.get("import_db_time", 10))
         dump_db_time = int(ftpConf.get("dump_db_time", 5))
+        ftp_download_time = int(ftpConf.get("ftp_download_time", 10))
         schedule.every(import_db_time).seconds.do(self.import_to_db)
         schedule.every(dump_db_time).seconds.do(self.dump_from_db)
+        schedule.every(ftp_download_time).seconds.do(self.download_ftp)
         while True:
             schedule.run_pending()
             time.sleep(1)

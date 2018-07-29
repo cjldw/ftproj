@@ -10,22 +10,19 @@ ftpConf = {
     "logfile": "app.log",
     "import_db_time": "1",  # 每隔多少分钟将文件导入
     "dump_db_time": "2",  # 每隔多少分钟将数据库的文件导出
+    "ftp_download_time": "10", # 每隔多少时间从ftp服务器下载文件
     "ftp_dir": "./tmp/ftp",  # ftp目录
     "download_dir": "./tmp/import",  # 下载目录
     "dist_dir": "./tmp/dump",  # 目标移动的目录
-    # "dbhost": "192.168.163.184",
-    # "dbname": "test",
-    # "dbuser": "live",
-    # "dbpwd": "admin",
     "dbhost": "localhost",
     "dbname": "test",
     "dbuser": "root",
     "dbpwd": "111111",
     "dbport": 3306,
     "dbcharset": "utf8",
-    "ftphost": "ftp1.linuxidc.com",
+    "ftphost": "localhost",
     "ftptype": "ftp",
-    "ftpuser": "ftp1.linuxidc.com",
-    "ftppwd": "www.linuxidc.com",
+    "ftpuser": "luowen",
+    "ftppwd": "123456",
     "ftpport": "22",
 }

@@ -99,7 +99,8 @@ class DbUtils(object):
         conn = self.get_conn()
         try:
             with conn.cursor() as cursor:
-                file_sql = "SELECT * FROM files WHERE is_dump = 0"
+                # 2分钟后再导出数据库中的文件
+                file_sql = "SELECT * FROM files WHERE is_dump = 0 AND created_at <= unix_timestamp() - 120"
                 cursor.execute(file_sql)
                 result = cursor.fetchall()
                 return result
