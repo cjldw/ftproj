@@ -1,4 +1,4 @@
-# FTP 小需求
+# FTP 小需求 (热成狗)
 
 实现了一个简单的需求:
 
@@ -20,7 +20,8 @@
 1. 安装 python3.x, python2不支持！ 推荐virtualenv
 2. 安装 mysql5.5 或以上
 3. 安装所需要的依赖库 `pip install < requirements.txt`
-4. `./run.sh {start, stop, status}`
+4. 创建MySQL数据表 `mysql -uroot -ppwd < db.sql`
+5. `./run.sh {start, stop, status}`
 
 
 

@@ -40,7 +40,7 @@ class DbUtils(object):
 
     def record_files(self, filename="", content=""):
         if filename == "":
-            logging.info("计入文件名为空!")
+            logging.info("导入文件名为空!")
             return True
         conn = self.get_conn()
         try:
@@ -64,7 +64,7 @@ class DbUtils(object):
                 conn.execute(delete_sql)
                 conn.commit()
         except Exception as e:
-            logging.error("删除数据记录发生错误: ", e)
+            logging.error("删除数据记录发生错误: %s", e)
         finally:
             conn.close()
 
@@ -73,7 +73,7 @@ class DbUtils(object):
         try:
             with conn.cursor() as cursor:
                 update_sql = 'UPDATE files SET is_dump = 1 WHERE id = %s'
-                logging.info("标记文件迁移: %s", update_sql)
+                logging.info("标记文件迁移: %s : 参数: %s", update_sql, id)
                 cursor.execute(update_sql, (id,))
             conn.commit()
         except Exception as e:

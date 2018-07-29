@@ -8,7 +8,6 @@ import os, logging, sys, time, schedule
 from logging.handlers import TimedRotatingFileHandler
 from .config import ftpConf
 from .cronjob import CronJob
-from .ftputils import FtpUtils
 from pathlib import Path
 from os import path
 
@@ -69,7 +68,7 @@ class Ftproj(object):
         logpath = ftpConf.get("logpath", "./logs")
         logfile = ftpConf.get("logfile", "app.log")
         abslogfile = os.path.join(logpath, logfile)
-        rhandler = TimedRotatingFileHandler(abslogfile, when='D', backupCount=30)
+        rhandler = TimedRotatingFileHandler(abslogfile, when='D', backupCount=30, encoding="utf-8")
         rhandler.setLevel(logging.INFO)
         rhandler.setFormatter(formatter)
         root_logger.addHandler(rhandler)
@@ -94,7 +93,7 @@ class Ftproj(object):
         定时下载ftp文件
         :return:
         """
-        FtpUtils.download_ftp()
+        CronJob.download_ftp()
 
     def run(self):
         """
